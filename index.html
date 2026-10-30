@@ -1,0 +1,537 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Matin Jalali · Optimization & Energy Analytics</title>
+<meta name="description" content="Matin Jalali builds optimization models, ML forecasts and digital twins in Python for energy storage, power grids, buildings and logistics.">
+<meta property="og:title" content="Matin Jalali · Optimization & Energy Analytics">
+<meta property="og:description" content="Pyomo optimization, ML forecasting and digital twins for energy, grids and logistics. 8 open-source case studies with measured results.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://matinjalali543-lang.github.io/">
+<meta property="og:image" content="https://matinjalali543-lang.github.io/assets/img/bess-forecast.png">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230f5c4d'/%3E%3Ctext x='16' y='22' font-family='Arial' font-weight='700' font-size='15' fill='white' text-anchor='middle'%3EMJ%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Inter+Tight:wght@600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f7f6f2;
+  --surface: #ffffff;
+  --ink: #16201d;
+  --ink-2: #4a5652;
+  --ink-3: #75807c;
+  --line: #e3e1da;
+  --accent: #0f5c4d;
+  --accent-soft: #e2efe9;
+  --accent-ink: #ffffff;
+  --gold: #b7791f;
+  --shadow: 0 1px 2px rgba(22,32,29,.05), 0 8px 24px -12px rgba(22,32,29,.12);
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f1412;
+    --surface: #161d1a;
+    --ink: #e8ece9;
+    --ink-2: #b2bcb7;
+    --ink-3: #85908b;
+    --line: #26302c;
+    --accent: #5cc3a5;
+    --accent-soft: #17302a;
+    --accent-ink: #0b1714;
+    --gold: #e0a84d;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px -12px rgba(0,0,0,.5);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f1412;
+  --surface: #161d1a;
+  --ink: #e8ece9;
+  --ink-2: #b2bcb7;
+  --ink-3: #85908b;
+  --line: #26302c;
+  --accent: #5cc3a5;
+  --accent-soft: #17302a;
+  --accent-ink: #0b1714;
+  --gold: #e0a84d;
+  --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px -12px rgba(0,0,0,.5);
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font: 400 16px/1.6 Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: inherit; }
+img { max-width: 100%; display: block; }
+.wrap { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
+h1, h2, h3 { font-family: "Inter Tight", Inter, sans-serif; letter-spacing: -0.02em; margin: 0; }
+.mono { font-family: "JetBrains Mono", ui-monospace, monospace; }
+.eyebrow {
+  font: 500 12px/1 "JetBrains Mono", ui-monospace, monospace;
+  text-transform: uppercase; letter-spacing: .12em; color: var(--accent);
+}
+
+/* nav */
+.nav {
+  position: sticky; top: 0; z-index: 10;
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--line);
+}
+.nav .wrap { display: flex; align-items: center; justify-content: space-between; height: 64px; gap: 16px; }
+.brand { font: 700 17px "Inter Tight", sans-serif; text-decoration: none; letter-spacing: -0.01em; }
+.brand span { color: var(--accent); }
+.nav ul { display: flex; gap: 28px; list-style: none; margin: 0; padding: 0; }
+.nav ul a { text-decoration: none; color: var(--ink-2); font-size: 14px; font-weight: 500; }
+.nav ul a:hover { color: var(--ink); }
+
+/* buttons */
+.btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 12px 20px; border-radius: 10px; font-weight: 600; font-size: 15px;
+  text-decoration: none; border: 1px solid transparent; transition: transform .15s, background .15s;
+}
+.btn:hover { transform: translateY(-1px); }
+.btn-primary { background: var(--accent); color: var(--accent-ink); }
+.btn-ghost { border-color: var(--line); background: var(--surface); }
+.btn svg { width: 18px; height: 18px; }
+
+/* hero */
+.hero { padding: 88px 0 56px; }
+.hero h1 { font-size: clamp(40px, 6vw, 68px); line-height: 1.02; margin: 18px 0 22px; max-width: 14ch; }
+.hero h1 em { font-style: normal; color: var(--accent); }
+.hero p.lead { font-size: clamp(17px, 2vw, 20px); color: var(--ink-2); max-width: 60ch; margin: 0 0 32px; }
+.hero .ctas { display: flex; gap: 12px; flex-wrap: wrap; }
+
+.stats {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  margin-top: 64px; border: 1px solid var(--line); border-radius: 16px;
+  background: var(--surface); overflow: hidden;
+}
+.stat { padding: 22px 24px; border-left: 1px solid var(--line); }
+.stat:first-child { border-left: 0; }
+.stat b { display: block; font: 700 32px/1.1 "Inter Tight", sans-serif; letter-spacing: -0.02em; color: var(--accent); }
+.stat span { font-size: 13.5px; color: var(--ink-2); line-height: 1.4; display: block; margin-top: 6px; }
+
+/* sections */
+section { padding: 72px 0; }
+.section-head { display: flex; align-items: end; justify-content: space-between; gap: 24px; margin-bottom: 36px; flex-wrap: wrap; }
+.section-head h2 { font-size: clamp(28px, 3.6vw, 40px); margin-top: 10px; }
+.section-head p { color: var(--ink-2); max-width: 46ch; margin: 0; }
+
+/* services */
+.services { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.service {
+  background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 24px;
+}
+.service .ico {
+  width: 40px; height: 40px; border-radius: 10px; background: var(--accent-soft); color: var(--accent);
+  display: grid; place-items: center; margin-bottom: 16px;
+}
+.service .ico svg { width: 22px; height: 22px; }
+.service h3 { font-size: 18px; margin-bottom: 8px; }
+.service p { color: var(--ink-2); font-size: 14.5px; margin: 0; }
+
+/* projects */
+.projects { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+.card {
+  background: var(--surface); border: 1px solid var(--line); border-radius: 16px; overflow: hidden;
+  display: flex; flex-direction: column; box-shadow: var(--shadow);
+  transition: transform .2s, border-color .2s;
+}
+.card:hover { transform: translateY(-2px); border-color: color-mix(in srgb, var(--accent) 40%, var(--line)); }
+.figure {
+  position: relative; background: #fff; aspect-ratio: 16 / 9;
+  border-bottom: 1px solid var(--line);
+}
+.figure img, .figure svg {
+  position: absolute; inset: 14px; width: calc(100% - 28px); height: calc(100% - 28px); object-fit: contain;
+}
+.card-body { padding: 24px; display: flex; flex-direction: column; gap: 14px; flex: 1; }
+.card .tag { font: 500 11.5px/1 "JetBrains Mono", monospace; text-transform: uppercase; letter-spacing: .1em; color: var(--ink-3); }
+.card h3 { font-size: 21px; line-height: 1.25; }
+.card p { margin: 0; color: var(--ink-2); font-size: 15px; }
+.result {
+  display: flex; gap: 14px; align-items: baseline;
+  padding: 14px 16px; border-radius: 10px; background: var(--accent-soft);
+}
+.result b { font: 700 26px/1 "Inter Tight", sans-serif; color: var(--accent); white-space: nowrap; letter-spacing: -0.02em; }
+.result span { font-size: 14px; color: var(--ink); line-height: 1.4; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: auto; padding-top: 4px; }
+.chip { font-size: 12.5px; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--line); color: var(--ink-2); }
+.card-link {
+  display: inline-flex; align-items: center; gap: 6px; font-weight: 600; font-size: 14.5px;
+  color: var(--accent); text-decoration: none;
+}
+.card-link:hover { text-decoration: underline; }
+.card-link svg { width: 16px; height: 16px; }
+
+/* approach */
+.approach { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0; border-top: 1px solid var(--line); }
+.step { padding: 28px 28px 28px 0; border-bottom: 1px solid var(--line); display: grid; grid-template-columns: 48px 1fr; gap: 8px; }
+.step:nth-child(even) { padding-left: 28px; border-left: 1px solid var(--line); }
+.step .n { font: 500 13px "JetBrains Mono", monospace; color: var(--accent); padding-top: 4px; }
+.step h3 { font-size: 18px; margin-bottom: 6px; }
+.step p { margin: 0; color: var(--ink-2); font-size: 15px; }
+
+/* toolkit */
+.toolkit { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+.tool-group { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 20px; }
+.tool-group h3 { font: 500 12px "JetBrains Mono", monospace; text-transform: uppercase; letter-spacing: .1em; color: var(--ink-3); margin-bottom: 12px; }
+.tool-group ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 6px; font-size: 15px; font-weight: 500; }
+
+/* contact */
+.contact {
+  background: var(--accent); color: var(--accent-ink); border-radius: 20px;
+  padding: clamp(32px, 6vw, 64px); display: grid; grid-template-columns: 1.4fr 1fr; gap: 32px; align-items: center;
+}
+.contact h2 { font-size: clamp(28px, 4vw, 42px); line-height: 1.1; }
+.contact p { opacity: .85; margin: 14px 0 0; font-size: 17px; }
+.contact .ctas { display: flex; flex-direction: column; gap: 12px; align-items: stretch; }
+.contact .btn { justify-content: center; }
+.contact .btn-light { background: var(--accent-ink); color: var(--accent); }
+.contact .btn-outline { border-color: color-mix(in srgb, var(--accent-ink) 40%, transparent); color: var(--accent-ink); }
+
+footer { padding: 40px 0 56px; color: var(--ink-3); font-size: 14px; }
+footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+
+/* theme toggle */
+.theme-toggle {
+  background: none; border: 1px solid var(--line); color: var(--ink-2); border-radius: 8px;
+  width: 36px; height: 36px; display: grid; place-items: center; cursor: pointer;
+}
+.theme-toggle svg { width: 18px; height: 18px; }
+.nav-right { display: flex; align-items: center; gap: 24px; }
+
+@media (max-width: 900px) {
+  .services, .toolkit { grid-template-columns: repeat(2, 1fr); }
+  .stats { grid-template-columns: repeat(2, 1fr); }
+  .stat:nth-child(3) { border-left: 0; }
+  .stat:nth-child(n+3) { border-top: 1px solid var(--line); }
+  .contact { grid-template-columns: 1fr; }
+}
+@media (max-width: 720px) {
+  .wrap { padding: 0 16px; }
+  .nav ul { display: none; }
+  .hero { padding: 56px 0 32px; }
+  .stats { margin-top: 40px; }
+  .stat { padding: 18px 16px; }
+  .stat b { font-size: 26px; }
+  section { padding: 52px 0; }
+  .projects, .services, .toolkit, .approach { grid-template-columns: 1fr; }
+  .step, .step:nth-child(even) { padding: 24px 0; border-left: 0; }
+  .card-body { padding: 20px; }
+  .result { flex-direction: column; gap: 6px; }
+}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="wrap">
+    <a class="brand" href="#top">Matin Jalali<span>.</span></a>
+    <div class="nav-right">
+      <ul>
+        <li><a href="#services">Services</a></li>
+        <li><a href="#work">Work</a></li>
+        <li><a href="#approach">Approach</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+      <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<header class="hero" id="top">
+  <div class="wrap">
+    <div class="eyebrow">Optimization · Energy analytics · Python</div>
+    <h1>Decision models that <em>pay for themselves.</em></h1>
+    <p class="lead">I'm Matin Jalali. I build optimization models, ML forecasts and digital twins in Python for battery storage, power grids, buildings and logistics, and I measure what each one is actually worth against honest baselines.</p>
+    <div class="ctas">
+      <a class="btn btn-primary" href="#work">See the case studies
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </a>
+      <a class="btn btn-ghost" href="https://github.com/matinjalali543-lang" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2.1c-3.3.7-4-1.6-4-1.6-.6-1.4-1.4-1.8-1.4-1.8-1.1-.7.1-.7.1-.7 1.2.1 1.9 1.3 1.9 1.3 1.1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.8-1.6-2.7-.3-5.5-1.3-5.5-5.9 0-1.3.5-2.4 1.2-3.2-.1-.3-.5-1.5.1-3.2 0 0 1-.3 3.3 1.2a11.5 11.5 0 0 1 6 0C17.3 4.6 18.3 5 18.3 5c.7 1.7.2 2.9.1 3.2.8.8 1.2 1.9 1.2 3.2 0 4.6-2.8 5.6-5.5 5.9.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 12 .5z"/></svg>
+        GitHub
+      </a>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><b>94%</b><span>critical load kept on through a 72-hour storm, up from 52%</span></div>
+      <div class="stat"><b>7.3%</b><span>lower building energy cost with zero comfort violations</span></div>
+      <div class="stat"><b>15%</b><span>lower supply-chain cost from optimizing network and operations together</span></div>
+      <div class="stat"><b>19 / 19</b><span>prompt-injection attacks stopped before reaching the optimizer</span></div>
+    </div>
+  </div>
+</header>
+
+<section id="services">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <div class="eyebrow">What I can build for you</div>
+        <h2>Services</h2>
+      </div>
+      <p>From a one-off model to a tested tool your team can run. Every engagement ends with code, documentation and a demo you can use.</p>
+    </div>
+    <div class="services">
+      <div class="service">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="18" height="10" rx="2"/><path d="M22 11v2M6 11v2M10 11v2"/></svg></div>
+        <h3>Battery storage optimization</h3>
+        <p>Dispatch and sizing for BESS: price arbitrage, frequency regulation, peak shaving and self-consumption, with revenue split by market.</p>
+      </div>
+      <div class="service">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg></div>
+        <h3>Power systems & microgrids</h3>
+        <p>Economic dispatch, DC optimal power flow with locational prices, network reconfiguration and resilience planning.</p>
+      </div>
+      <div class="service">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m7 15 4-4 3 3 6-7"/></svg></div>
+        <h3>Forecasting for decisions</h3>
+        <p>Load, solar and price forecasts built to feed an optimizer, scored by money saved rather than accuracy alone.</p>
+      </div>
+      <div class="service">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M5 21V8l7-5 7 5v13"/><path d="M9 21v-6h6v6"/></svg></div>
+        <h3>Digital twins & MPC</h3>
+        <p>Building models learned from sensor data, fault detection, and model predictive control for HVAC and storage.</p>
+      </div>
+      <div class="service">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="6" r="2"/><circle cx="19" cy="6" r="2"/><circle cx="12" cy="18" r="2"/><path d="M7 6h10M6 8l5 8M18 8l-5 8"/></svg></div>
+        <h3>Supply chain & routing</h3>
+        <p>Facility location, production and inventory planning, and vehicle routing as mixed-integer programs.</p>
+      </div>
+      <div class="service">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
+        <h3>LLM + optimization tools</h3>
+        <p>Natural-language front ends for optimization models, with the LLM kept away from the math behind a validated schema.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="work">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <div class="eyebrow">Selected work</div>
+        <h2>Case studies</h2>
+      </div>
+      <p>Eight independent projects, each with full source code, tests and documentation. Every number below comes from the project's own results.</p>
+    </div>
+
+    <div class="projects">
+
+      <article class="card">
+        <div class="figure"><img src="assets/img/bess-forecast.png" alt="Savings by controller: forecast-driven dispatch versus rule-based and perfect foresight" loading="lazy"></div>
+        <div class="card-body">
+          <div class="tag">Energy storage · Machine learning</div>
+          <h3>Forecast-driven battery dispatch</h3>
+          <p>ML forecasts of load, solar and wholesale price drive a battery schedule optimized in Pyomo, tested on 60 days of real German/Luxembourg market data.</p>
+          <div class="result"><b>98.7%</b><span>of the remaining gap traced to price error alone, showing exactly where forecasting effort pays off</span></div>
+          <div class="chips"><span class="chip">Python</span><span class="chip">Pyomo</span><span class="chip">scikit-learn</span><span class="chip">Time series</span><span class="chip">HiGHS</span></div>
+          <a class="card-link" href="https://github.com/matinjalali543-lang/forecast-driven-bess-dispatch" target="_blank" rel="noopener">View project <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="figure"><img src="assets/img/microgrid.png" alt="IEEE 33-bus feeder before and after optimal reconfiguration" loading="lazy"></div>
+        <div class="card-body">
+          <div class="tag">Power systems · MILP</div>
+          <h3>Resilient microgrid through a 72-hour storm</h3>
+          <p>A mixed-integer model decides which lines to switch, what to dispatch and which loads to shed on the IEEE 33-bus feeder, with radial operation enforced mathematically.</p>
+          <div class="result"><b>52% → 94%</b><span>critical load served once switching is optimized alongside dispatch</span></div>
+          <div class="chips"><span class="chip">Python</span><span class="chip">Pyomo</span><span class="chip">MILP</span><span class="chip">pandapower</span><span class="chip">Distribution grids</span></div>
+          <a class="card-link" href="https://github.com/matinjalali543-lang/resilient-microgrid-optimization" target="_blank" rel="noopener">View project <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="figure">
+          <svg viewBox="0 0 640 360" role="img" aria-label="Energy cost and comfort violations by controller over a 78-day test" font-family="Inter, Arial, sans-serif">
+            <text x="24" y="34" font-size="17" fill="#1f2a27" font-weight="600">78-day test: energy cost and comfort violations by controller</text>
+            <g font-size="14" fill="#3c4744">
+              <text x="24" y="98">Thermostat</text>
+              <text x="24" y="170">Thermostat + battery</text>
+              <text x="24" y="242">Digital twin MPC</text>
+            </g>
+            <g>
+              <rect x="190" y="78" width="330" height="30" fill="#9aa1aa"/>
+              <rect x="190" y="150" width="329.8" height="30" fill="#9aa1aa"/>
+              <rect x="190" y="222" width="306" height="30" fill="#1f6f5c"/>
+            </g>
+            <g font-size="14" fill="#1f2a27" font-weight="600">
+              <text x="530" y="99">€5,868</text>
+              <text x="530" y="171">€5,864</text>
+              <text x="506" y="243">€5,440</text>
+            </g>
+            <g font-size="13" fill="#5a6562">
+              <text x="190" y="128">8 comfort violations</text>
+              <text x="190" y="200">8 comfort violations</text>
+              <text x="190" y="272" fill="#1f6f5c" font-weight="600">0 comfort violations · 7.3% cheaper</text>
+            </g>
+            <line x1="190" y1="62" x2="190" y2="290" stroke="#2a2f2e" stroke-width="1.2"/>
+            <text x="24" y="330" font-size="12" fill="#75807c">Simulated office driven by real weather and day-ahead prices (Berlin, DE/LU 2019)</text>
+          </svg>
+        </div>
+        <div class="card-body">
+          <div class="tag">Buildings · Digital twin · MPC</div>
+          <h3>Building energy digital twin</h3>
+          <p>A twin that learns the building's thermal model from sensor data, detects faults and controls HVAC plus a battery with comfort-constrained model predictive control.</p>
+          <div class="result"><b>7.3%</b><span>lower energy cost than the existing thermostat, with zero comfort violations</span></div>
+          <div class="chips"><span class="chip">Python</span><span class="chip">Pyomo</span><span class="chip">MPC</span><span class="chip">Fault detection</span><span class="chip">Streamlit</span></div>
+          <a class="card-link" href="https://github.com/matinjalali543-lang/building-energy-digital-twin" target="_blank" rel="noopener">View project <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="figure"><img src="assets/img/llm-copilot.png" alt="Before and after optimization: cost, peak, import and emissions" loading="lazy"></div>
+        <div class="card-body">
+          <div class="tag">AI · LLM · Optimization</div>
+          <h3>LLM energy optimization copilot</h3>
+          <p>Plain-English requests become validated, structured inputs for a deterministic optimizer, and every number in the explanation comes from the optimizer's output.</p>
+          <div class="result"><b>19 / 19</b><span>prompt-injection payloads blocked by the schema and validator, never reaching the solver</span></div>
+          <div class="chips"><span class="chip">Python</span><span class="chip">Claude API</span><span class="chip">Pydantic</span><span class="chip">Pyomo</span><span class="chip">Streamlit</span></div>
+          <a class="card-link" href="https://github.com/matinjalali543-lang/llm-energy-optimization-copilot" target="_blank" rel="noopener">View project <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="figure"><img src="assets/img/supply-chain.png" alt="Optimized supply chain network with chosen plants and warehouses" loading="lazy"></div>
+        <div class="card-body">
+          <div class="tag">Supply chain · MILP</div>
+          <h3>Supply chain network design & planning</h3>
+          <p>One model decides which plants and warehouses to open and how to produce, ship and stock each period, so network design and operations are solved together.</p>
+          <div class="result"><b>15%</b><span>lower total cost than running every candidate facility</span></div>
+          <div class="chips"><span class="chip">Python</span><span class="chip">Pyomo</span><span class="chip">MILP</span><span class="chip">Facility location</span><span class="chip">Inventory</span></div>
+          <a class="card-link" href="https://github.com/matinjalali543-lang/supply-chain-network-optimization-pyomo" target="_blank" rel="noopener">View project <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="figure"><img src="assets/img/cvrp.png" alt="Optimal vehicle routes for a 10-customer instance" loading="lazy"></div>
+        <div class="card-body">
+          <div class="tag">Logistics · Routing</div>
+          <h3>Vehicle routing, solved exactly</h3>
+          <p>Capacitated vehicle routing as an exact MILP, with a benchmark that shows where exact methods stop scaling and when to switch to heuristics.</p>
+          <div class="result"><b>0.0% gap</b><span>proven-optimal routes up to 15 customers in under a minute</span></div>
+          <div class="chips"><span class="chip">Python</span><span class="chip">Pyomo</span><span class="chip">MILP</span><span class="chip">CVRP</span><span class="chip">HiGHS</span></div>
+          <a class="card-link" href="https://github.com/matinjalali543-lang/cvrp-optimization-pyomo" target="_blank" rel="noopener">View project <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="figure"><img src="assets/img/bess-stacking.png" alt="Battery charge and discharge schedule against energy price" loading="lazy"></div>
+        <div class="card-body">
+          <div class="tag">Energy markets · LP</div>
+          <h3>Battery revenue stacking</h3>
+          <p>A battery earns from price arbitrage and frequency regulation in one optimization, with headroom constraints so every MW sold to regulation can actually be delivered.</p>
+          <div class="result"><b>2 markets</b><span>co-optimized in one linear program, including negative-price hours</span></div>
+          <div class="chips"><span class="chip">Python</span><span class="chip">Pyomo</span><span class="chip">Linear programming</span><span class="chip">Streamlit</span></div>
+          <a class="card-link" href="https://github.com/matinjalali543-lang/battery-storage-optimization-pyomo" target="_blank" rel="noopener">View project <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="figure"><img src="assets/img/economic-dispatch.png" alt="Generation dispatch stack against demand" loading="lazy"></div>
+        <div class="card-body">
+          <div class="tag">Power systems · OPF</div>
+          <h3>Economic dispatch with locational prices</h3>
+          <p>Multi-period DC optimal power flow with transmission limits, ramping, renewables and storage, with locational marginal prices taken from the model's duals.</p>
+          <div class="result"><b>LMPs</b><span>per bus and period, plus automatic solver choice for quadratic or piecewise-linear costs</span></div>
+          <div class="chips"><span class="chip">Python</span><span class="chip">Pyomo</span><span class="chip">DC-OPF</span><span class="chip">Ipopt</span><span class="chip">HiGHS</span></div>
+          <a class="card-link" href="https://github.com/matinjalali543-lang/economic-dispatch-pyomo" target="_blank" rel="noopener">View project <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
+        </div>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<section id="approach">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <div class="eyebrow">How I work</div>
+        <h2>Approach</h2>
+      </div>
+      <p>The same discipline runs through every project, and it is what you get on yours.</p>
+    </div>
+    <div class="approach">
+      <div class="step"><div class="n">01</div><div><h3>Scope agreed before code</h3><p>A short written brief of the decisions, constraints and success metric, so we agree on the problem before anything is built.</p></div></div>
+      <div class="step"><div class="n">02</div><div><h3>Inputs that fail loudly</h3><p>Data is validated on load with clear error messages, instead of surfacing later as a confusing solver failure.</p></div></div>
+      <div class="step"><div class="n">03</div><div><h3>Measured against a baseline</h3><p>Every result is compared with what you do today and with the best possible case, so you know what the model is really worth.</p></div></div>
+      <div class="step"><div class="n">04</div><div><h3>Tested and reproducible</h3><p>Automated tests and CI on every project, with results you can rerun with one command.</p></div></div>
+      <div class="step"><div class="n">05</div><div><h3>Limitations stated plainly</h3><p>Simplifications and assumptions are documented up front, never hidden behind a good-looking chart.</p></div></div>
+      <div class="step"><div class="n">06</div><div><h3>Delivered ready to use</h3><p>Clean Python package, walkthrough notebook, interactive Streamlit app and documentation of the full formulation.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<section id="toolkit">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <div class="eyebrow">Toolkit</div>
+        <h2>Tools I use</h2>
+      </div>
+    </div>
+    <div class="toolkit">
+      <div class="tool-group"><h3>Optimization</h3><ul><li>Pyomo</li><li>HiGHS · CBC · Ipopt</li><li>LP · MILP · QP</li><li>Model predictive control</li></ul></div>
+      <div class="tool-group"><h3>Data & ML</h3><ul><li>Python · pandas · NumPy</li><li>scikit-learn · XGBoost</li><li>Time-series forecasting</li><li>Anomaly detection</li></ul></div>
+      <div class="tool-group"><h3>Energy domain</h3><ul><li>Battery storage</li><li>Power flow · pandapower</li><li>Electricity markets</li><li>Building thermal models</li></ul></div>
+      <div class="tool-group"><h3>Delivery</h3><ul><li>Streamlit dashboards</li><li>pytest · GitHub Actions</li><li>Jupyter notebooks</li><li>Claude API integration</li></ul></div>
+    </div>
+  </div>
+</section>
+
+<section id="contact">
+  <div class="wrap">
+    <div class="contact">
+      <div>
+        <h2>Have an optimization or energy analytics problem?</h2>
+        <p>Tell me the decision you need to make and the data you have. I'll come back with how I would model it and what result to expect.</p>
+      </div>
+      <div class="ctas">
+        <a class="btn btn-light" href="https://github.com/matinjalali543-lang" target="_blank" rel="noopener">Browse the code on GitHub</a>
+        <a class="btn btn-outline" href="#work">Back to case studies</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <span>© 2026 Matin Jalali</span>
+    <span>Optimization · Energy analytics · Python</span>
+  </div>
+</footer>
+
+<script>
+(function () {
+  var root = document.documentElement;
+  try {
+    var saved = localStorage.getItem('theme');
+    if (saved) root.setAttribute('data-theme', saved);
+  } catch (e) {}
+  document.getElementById('themeToggle').addEventListener('click', function () {
+    var current = root.getAttribute('data-theme') ||
+      (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    var next = current === 'dark' ? 'light' : 'dark';
+    root.setAttribute('data-theme', next);
+    try { localStorage.setItem('theme', next); } catch (e) {}
+  });
+})();
+</script>
+</body>
+</html>
